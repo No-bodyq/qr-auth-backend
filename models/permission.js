@@ -1,0 +1,38 @@
+import { Model, DataTypes } from "sequelize";
+import sequelize from "../config/database.js";
+
+class Permission extends Model {
+  static associate(models) {
+    Permission.belongsToMany(models.Role, {
+      through: "RolePermissions",
+      foreignKey: "permissionId",
+      otherKey: "roleId",
+    });
+  }
+}
+
+Permission.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+  },
+  {
+    sequelize,
+    modelName: "Permission",
+    timestamps: true,
+  }
+);
+
+export { Permission };
