@@ -8,6 +8,11 @@ class Role extends Model {
       foreignKey: "roleId",
       otherKey: "permissionId",
     });
+
+    Role.hasMany(models.User, {
+      foreignKey: "roleId",
+      as: "users",
+    });
   }
 }
 

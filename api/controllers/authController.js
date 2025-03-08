@@ -1,41 +1,57 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import User from "../../models/user.js";
+import Role from "../../models/role.js";
+import Permission from "../../models/permission.js";
+import AppError from "../../utils/AppError.js";
+import models from "../../models/index.js";
+import { where } from "sequelize";
 
-// Register new user
-export const register = async (req, res) => {
+/**
+ * Register a new user
+ */
+export const register = async (req, res, next) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, matricNo } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
-
-    console.log(existingUser);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return next(new AppError("User already exists", 400));
     }
 
     // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
-    const user = new User({
+    const userRole = await Role.findOne({ where: { name: "user" } });
+    if (!userRole) {
+      return next(new AppError("Default role not found", 500));
+    }
+
+    // Create new user (Assign default role "user")
+    const user = await User.create({
       email: email,
       password: hashedPassword,
       username: name,
-      roleId: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      matricNumber: matricNo,
+      mealId: 3,
+      roleId: userRole.id,
     });
 
-    await user.save();
+    // Fetch user's role & permissions
+    const role = await Role.findOne({
+      where: { id: user.roleId },
+      include: [{ model: models.Permission, as: "Permissions" }],
+    });
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      {
+        id: user.id,
+        role: role.name,
+        permissions: role.Permissions.map((p) => p.name),
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
     );
 
     res.status(201).json({
@@ -44,117 +60,142 @@ export const register = async (req, res) => {
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.username,
+        role: role.name,
+        matricNo: user.matricNumber,
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error registering user", error: error.message });
+    console.error("Registration Error:", error.message, error.parent?.detail);
+    next(error);
   }
 };
 
-// Login user
-export const login = async (req, res) => {
+/**
+ * Login user
+ */
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      where: { email },
+      include: [
+        {
+          model: models.Role,
+          as: "role",
+          include: [{ model: models.Permission, as: "Permissions" }],
+        },
+      ],
+    });
+
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return next(new AppError("Invalid credentials", 400));
     }
 
     // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return next(new AppError("Invalid credentials", 400));
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "24h" }
+      {
+        id: user.id,
+        role: user.role.name,
+        permissions: user.role.Permissions.map((p) => p.name),
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
     );
 
-    res.json({
+    res.status(200).json({
       message: "Login successful",
       token,
       user: {
-        id: user._id,
+        id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.username,
+        role: user.role.name,
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Error logging in", error });
+    next(error);
   }
 };
 
-// Get current user
-export const getCurrentUser = async (req, res) => {
+/**
+ * Get Current Authenticated User
+ */
+export const getCurrentUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.userId).select("-password");
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: Role,
+          include: [{ model: Permission, attributes: ["name"] }],
+        },
+      ],
+    });
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return next(new AppError("User not found", 404));
     }
+
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching user", error });
+    next(error);
   }
 };
 
-// Reset password request
-export const resetPasswordRequest = async (req, res) => {
+/**
+ * Reset Password Request
+ */
+export const resetPasswordRequest = async (req, res, next) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return next(new AppError("User not found", 404));
     }
 
     // Generate reset token
-    const resetToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET || "your-secret-key",
-      { expiresIn: "1h" }
-    );
-
-    // Here you would typically send an email with the reset link
-    // For demo purposes, we'll just return the token
-    res.json({
-      message: "Password reset link sent to email",
-      resetToken,
+    const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
+
+    // In real-world, send email instead of returning token
+    res.json({ message: "Password reset link sent to email", resetToken });
   } catch (error) {
-    res.status(500).json({ message: "Error requesting password reset", error });
+    next(error);
   }
 };
 
-// Reset password
-export const resetPassword = async (req, res) => {
+/**
+ * Reset Password
+ */
+export const resetPassword = async (req, res, next) => {
   try {
     const { token, newPassword } = req.body;
 
     // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "your-secret-key"
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Hash new password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update user password
-    await User.findByIdAndUpdate(decoded.userId, {
-      password: hashedPassword,
-    });
+    await User.update(
+      { password: hashedPassword },
+      { where: { id: decoded.id } }
+    );
 
     res.json({ message: "Password reset successful" });
   } catch (error) {
-    res.status(500).json({ message: "Error resetting password", error });
+    next(error);
   }
 };

@@ -13,8 +13,9 @@ module.exports = {
 
     // Assign roles
     const userRoles = [
-      { user: "adminUser", role: "Admin" },
-      { user: "normalUser", role: "User" },
+      { user: "adminUser", role: "admin" },
+      { user: "normalUser", role: "user" },
+      { user: "vendorUser", role: "vendor" },
     ]
       .map(({ user, role }) => ({
         userId: userMap[user],

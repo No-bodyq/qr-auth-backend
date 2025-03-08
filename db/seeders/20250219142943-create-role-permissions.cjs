@@ -1,5 +1,5 @@
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  up: async (queryInterface) => {
     const roles = await queryInterface.sequelize.query(
       `SELECT id, name FROM "Roles";`
     );
@@ -15,6 +15,7 @@ module.exports = {
     );
 
     const rolePermissions = [
+      // Admin gets all permissions
       {
         roleId: roleMap["admin"],
         permissionId: permissionMap["user:create"],
@@ -40,8 +41,78 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["meal:create"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["meal:read"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["meal:update"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["meal:delete"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["role:assign"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["admin"],
+        permissionId: permissionMap["permission:assign"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // Vendor can manage meals
+      {
+        roleId: roleMap["vendor"],
+        permissionId: permissionMap["meal:create"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["vendor"],
+        permissionId: permissionMap["meal:read"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["vendor"],
+        permissionId: permissionMap["meal:update"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["vendor"],
+        permissionId: permissionMap["meal:delete"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+
+      // User can only read meal plans
+      {
         roleId: roleMap["user"],
         permissionId: permissionMap["user:read"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        roleId: roleMap["user"],
+        permissionId: permissionMap["meal:read"],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -50,7 +121,7 @@ module.exports = {
     await queryInterface.bulkInsert("RolePermissions", rolePermissions);
   },
 
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     await queryInterface.bulkDelete("RolePermissions", null, {});
   },
 };

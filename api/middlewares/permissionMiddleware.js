@@ -1,36 +1,38 @@
 // src/api/middlewares/permissionMiddleware.js
-import { Permission } from "../../models/permission.js";
+import Permission from "../../models/permission.js";
 import { RolePermission } from "../../models/rolePermission.js";
 import AppError from "../../utils/AppError.js";
 
 /**
  * Middleware to check if user has required permissions
- * @param {...string} requiredPermissions - Permissions required to access the route
+ * @param {...string} requiredPermissions - Required permissions to access the route
  */
-export const requirePermissions = (...requiredPermissions) => {
+const requirePermissions = (...requiredPermissions) => {
   return async (req, res, next) => {
     try {
-      // Check if user exists (should be attached by authMiddleware)
+      // Ensure user is authenticated
       if (!req.user) {
         return next(new AppError("User not authenticated", 401));
       }
 
-      // Get user's role permissions
+      // Fetch the user's permissions directly
       const rolePermissions = await RolePermission.findAll({
         where: { roleId: req.user.roleId },
+        attributes: [], // Exclude rolePermission fields, we only need the related Permission
         include: [
           {
             model: Permission,
-            where: {
-              name: requiredPermissions,
-            },
+            attributes: ["name"], // Fetch only permission names
           },
         ],
       });
 
-      // Check if user has all required permissions
-      const hasAllPermissions = requiredPermissions.every((permission) =>
-        rolePermissions.some((rp) => rp.Permission.name === permission)
+      // Extract permission names from the result
+      const userPermissions = rolePermissions.map((rp) => rp.Permission.name);
+
+      // Check if the user has all required permissions
+      const hasAllPermissions = requiredPermissions.every((perm) =>
+        userPermissions.includes(perm)
       );
 
       if (!hasAllPermissions) {
@@ -39,7 +41,10 @@ export const requirePermissions = (...requiredPermissions) => {
 
       next();
     } catch (error) {
-      next(error);
+      console.error("Permission Middleware Error:", error);
+      next(new AppError("Internal Server Error", 500));
     }
   };
 };
+
+export default requirePermissions;

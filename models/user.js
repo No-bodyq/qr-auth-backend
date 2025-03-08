@@ -3,9 +3,16 @@ import sequelize from "../config/database.js";
 
 class User extends Model {
   static associate(models) {
-    Users.belongsTo(models.Role, {
+    // Associate User with Role
+    User.belongsTo(models.Role, {
       foreignKey: "roleId",
       as: "role",
+    });
+
+    // Associate User with Meal
+    User.belongsTo(models.Meal, {
+      foreignKey: "mealId",
+      as: "meal",
     });
   }
 }
@@ -29,6 +36,22 @@ User.init(
       validate: {
         isEmail: true,
       },
+    },
+    matricNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    mealId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "Meals",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "SET NULL",
+      defaultValue: 3,
     },
     password: {
       type: DataTypes.STRING,

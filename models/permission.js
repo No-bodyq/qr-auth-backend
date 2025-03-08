@@ -35,4 +35,4 @@ Permission.init(
   }
 );
 
-export { Permission };
+export default Permission;

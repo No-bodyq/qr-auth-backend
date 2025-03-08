@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../../models/user.js";
+import Role from "../../models/role.js";
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -13,9 +14,15 @@ const authMiddleware = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Check if user still exists
     const user = await User.findByPk(decoded.id, {
-      attributes: ["id", "username", "email", "roleId"],
+      attributes: ["id", "username", "email", "roleId", "matricNumber"],
+      include: [
+        {
+          model: Role,
+          as: "role",
+          attributes: ["id", "name"],
+        },
+      ],
     });
 
     if (!user) {
