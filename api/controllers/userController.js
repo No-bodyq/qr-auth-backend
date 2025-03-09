@@ -8,7 +8,14 @@ import AppError from "../../utils/AppError.js";
 export const getUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({
-      attributes: ["id", "username", "email", "roleId"],
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "roleId",
+        "matricNumber",
+        "mealId",
+      ],
     });
     res.json(users);
   } catch (error) {
@@ -22,7 +29,14 @@ export const getUsers = async (req, res, next) => {
 export const getUserById = async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      attributes: ["id", "username", "email", "roleId"],
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "roleId",
+        "matricNumber",
+        "mealId",
+      ],
     });
 
     if (!user) {
@@ -40,7 +54,8 @@ export const getUserById = async (req, res, next) => {
  */
 export const createUser = async (req, res, next) => {
   try {
-    const { username, email, password, roleId } = req.body;
+    const { username, email, password, roleId, matricNumber, mealId } =
+      req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ where: { email } });
@@ -57,6 +72,8 @@ export const createUser = async (req, res, next) => {
       email,
       password: hashedPassword,
       roleId,
+      matricNumber,
+      mealId,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -68,6 +85,8 @@ export const createUser = async (req, res, next) => {
         username: newUser.username,
         email: newUser.email,
         roleId: newUser.roleId,
+        matricNumber: newUser.matricNumber,
+        mealId: newUser.mealId,
       },
     });
   } catch (error) {
@@ -80,7 +99,8 @@ export const createUser = async (req, res, next) => {
  */
 export const updateUser = async (req, res, next) => {
   try {
-    const { username, email, password, roleId } = req.body;
+    const { username, email, password, roleId, matricNumber, mealId } =
+      req.body;
     const user = await User.findByPk(req.params.id);
 
     if (!user) {
@@ -94,6 +114,8 @@ export const updateUser = async (req, res, next) => {
       user.password = await bcrypt.hash(password, 10);
     }
     if (roleId) user.roleId = roleId;
+    if (matricNumber) user.matricNumber = matricNumber;
+    if (mealId) user.mealId = mealId;
 
     await user.save();
 
@@ -104,6 +126,8 @@ export const updateUser = async (req, res, next) => {
         username: user.username,
         email: user.email,
         roleId: user.roleId,
+        matricNumber: user.matricNumber,
+        mealId: user.mealId,
       },
     });
   } catch (error) {

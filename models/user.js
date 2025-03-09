@@ -39,12 +39,12 @@ User.init(
     },
     matricNumber: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     mealId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: "Meals",
         key: "id",

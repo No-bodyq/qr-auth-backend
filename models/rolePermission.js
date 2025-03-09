@@ -1,7 +1,15 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-class RolePermission extends Model {}
+class RolePermission extends Model {
+  static associate(models) {
+    this.belongsTo(models.Role, { foreignKey: "roleId", onDelete: "CASCADE" });
+    this.belongsTo(models.Permission, {
+      foreignKey: "permissionId",
+      onDelete: "CASCADE",
+    });
+  }
+}
 
 RolePermission.init(
   {
@@ -29,4 +37,4 @@ RolePermission.init(
   }
 );
 
-export { RolePermission };
+export default RolePermission;

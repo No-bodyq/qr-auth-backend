@@ -4,7 +4,7 @@ import sequelize from "../config/database.js";
 class Role extends Model {
   static associate(models) {
     Role.belongsToMany(models.Permission, {
-      through: "RolePermissions",
+      through: models.RolePermission, // Use the actual model reference
       foreignKey: "roleId",
       otherKey: "permissionId",
     });

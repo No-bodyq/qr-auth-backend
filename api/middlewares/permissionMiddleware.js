@@ -1,6 +1,6 @@
 // src/api/middlewares/permissionMiddleware.js
 import Permission from "../../models/permission.js";
-import { RolePermission } from "../../models/rolePermission.js";
+import RolePermission from "../../models/rolePermission.js";
 import AppError from "../../utils/AppError.js";
 
 /**

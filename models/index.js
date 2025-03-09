@@ -1,9 +1,10 @@
 import User from "./user.js";
 import Role from "./role.js";
 import Meal from "./meal.js";
-import Permission from "./permission.js"; // Changed from { Permission }
+import Permission from "./permission.js";
+import RolePermission from "./rolePermission.js";
 
-const models = { User, Role, Permission, Meal };
+const models = { User, Role, Permission, Meal, RolePermission };
 
 Object.keys(models).forEach((modelName) => {
   if (models[modelName].associate) {
