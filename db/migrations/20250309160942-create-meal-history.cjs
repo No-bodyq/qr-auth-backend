@@ -1,6 +1,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("UserMeals", {
+    await queryInterface.createTable("MealHistory", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -14,7 +14,6 @@ module.exports = {
           model: "Users",
           key: "id",
         },
-        onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
       mealId: {
@@ -24,38 +23,27 @@ module.exports = {
           model: "Meals",
           key: "id",
         },
-        onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      mealsLeft: {
-        type: Sequelize.INTEGER,
+      dateConsumed: {
+        type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: 0,
-      },
-      mealsUsed: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
-      daysLeft: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
+        defaultValue: Sequelize.fn("NOW"),
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.fn("NOW"),
       },
       updatedAt: {
-        allowNull: false,
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.fn("NOW"),
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("UserMeals");
+    await queryInterface.dropTable("MealHistory");
   },
 };

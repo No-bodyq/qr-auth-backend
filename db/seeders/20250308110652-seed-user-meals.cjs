@@ -4,24 +4,27 @@ module.exports = {
       {
         userId: 1, // Assuming user with ID 1 exists
         mealId: 1, // Assuming meal with ID 1 exists
-        mealForDate: "breakfast", // Meal type
-        dateGenerated: new Date(),
+        mealsLeft: 10, // Example value
+        mealsUsed: 2, // Example value
+        daysLeft: 5, // Example value
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         userId: 2, // Assuming user with ID 2 exists
         mealId: 2, // Assuming meal with ID 2 exists
-        mealForDate: "lunch", // Meal type
-        dateGenerated: new Date(),
+        mealsLeft: 15, // Example value
+        mealsUsed: 5, // Example value
+        daysLeft: 7, // Example value
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         userId: 3, // Assuming user with ID 3 exists
         mealId: 3, // Assuming meal with ID 3 exists
-        mealForDate: "dinner", // Meal type
-        dateGenerated: new Date(),
+        mealsLeft: 8, // Example value
+        mealsUsed: 3, // Example value
+        daysLeft: 4, // Example value
         createdAt: new Date(),
         updatedAt: new Date(),
       },

@@ -1,46 +1,36 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("UserMeals", {
+    await queryInterface.createTable("MealDetails", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false,
       },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "Users",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
-      },
       mealId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: "Meals",
+          model: "Meals", // Ensure "Meals" table exists
           key: "id",
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      mealsLeft: {
-        type: Sequelize.INTEGER,
+      breakfast: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: false,
       },
-      mealsUsed: {
-        type: Sequelize.INTEGER,
+      lunch: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: false,
       },
-      daysLeft: {
-        type: Sequelize.INTEGER,
+      supper: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: 0,
+        defaultValue: false,
       },
       createdAt: {
         allowNull: false,
@@ -56,6 +46,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("UserMeals");
+    await queryInterface.dropTable("MealDetails");
   },
 };
