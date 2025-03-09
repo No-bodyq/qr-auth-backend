@@ -34,7 +34,6 @@ export const register = async (req, res, next) => {
       password: hashedPassword,
       username: name,
       matricNumber: matricNo,
-      mealId: 3,
       roleId: userRole.id,
     });
 
