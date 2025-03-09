@@ -22,4 +22,12 @@ mealRouter
     mealController.isMealTypeAvailable
   );
 
+mealRouter
+  .route("/history/:userId")
+  .get(
+    authMiddleware,
+    requirePermissions("meal:read"),
+    mealController.getMealHistory
+  );
+
 export default mealRouter;

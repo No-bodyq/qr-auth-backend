@@ -1,5 +1,6 @@
 import Meal from "../../models/meal.js";
 import MealDetail from "../../models/mealDetail.js";
+import MealHistory from "../../models/mealHistory.js";
 import AppError from "../../utils/AppError.js";
 
 /**
@@ -42,6 +43,35 @@ export const isMealTypeAvailable = async (req, res, next) => {
 
     res.json({ available: mealDetail[mealType] });
   } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get meal history for a user
+ */
+export const getMealHistory = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    const mealHistory = await MealHistory.findAll({
+      where: { userId },
+      attributes: [
+        "userId",
+        "mealId",
+        "dateConsumed",
+        "createdAt",
+        "updatedAt",
+      ],
+    });
+
+    if (!mealHistory.length) {
+      return next(new AppError("No meal history found for this user", 404));
+    }
+
+    res.json(mealHistory);
+  } catch (error) {
+    console.error("Database Query Error:", error);
     next(error);
   }
 };
