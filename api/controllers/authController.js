@@ -135,6 +135,7 @@ export const getCurrentUser = async (req, res, next) => {
       include: [
         {
           model: Role,
+          as: "role",
           include: [{ model: Permission, attributes: ["name"] }],
         },
       ],
