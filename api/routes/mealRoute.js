@@ -30,4 +30,13 @@ mealRouter
     mealController.getMealHistory
   );
 
+// Route to consume a meal
+mealRouter
+  .route("/consume")
+  .post(
+    authMiddleware,
+    requirePermissions("meal:update"),
+    mealController.consumeMeal
+  );
+
 export default mealRouter;

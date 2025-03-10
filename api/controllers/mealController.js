@@ -75,3 +75,51 @@ export const getMealHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Handles meal consumption by verifying meal type availability and updating meal history.
+ */
+export const consumeMeal = async (req, res, next) => {
+  try {
+    const { name, matricNumber, mealType, mealId, userId } = req.body;
+
+    // Validate meal type
+    if (!["breakfast", "lunch", "supper"].includes(mealType)) {
+      return next(new AppError("Invalid meal type", 400));
+    }
+
+    // Check if meal type is available for the given mealId
+    const mealDetail = await MealDetail.findOne({
+      where: { mealId },
+      attributes: ["breakfast", "lunch", "supper"],
+    });
+
+    if (!mealDetail) {
+      return next(new AppError("Meal details not found", 404));
+    }
+
+    // Check if the requested meal type is available
+    if (!mealDetail[mealType]) {
+      return next(
+        new AppError(
+          `The selected meal type (${mealType}) is not available`,
+          400
+        )
+      );
+    }
+
+    // Record the meal consumption in MealHistory
+    await MealHistory.create({
+      userId,
+      mealId,
+      dateConsumed: new Date(),
+    });
+
+    res.json({
+      success: true,
+      message: `Meal (${mealType}) successfully consumed by ${name} (${matricNumber})`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
