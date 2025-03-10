@@ -29,6 +29,10 @@ MealHistory.init(
       },
       onDelete: "CASCADE",
     },
+    mealType: {
+      type: DataTypes.ENUM("breakfast", "lunch", "supper"),
+      allowNull: false,
+    },
     dateConsumed: {
       type: DataTypes.DATE,
       allowNull: false,

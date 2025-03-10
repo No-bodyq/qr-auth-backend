@@ -25,6 +25,10 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
+      mealType: {
+        type: Sequelize.ENUM("breakfast", "lunch", "supper"),
+        allowNull: false,
+      },
       dateConsumed: {
         type: Sequelize.DATE,
         allowNull: false,

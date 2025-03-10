@@ -4,6 +4,7 @@ module.exports = {
       {
         userId: 1,
         mealId: 1, // Fixed meal ID for all entries
+        mealType: "breakfast", // Added mealType
         dateConsumed: new Date("2024-03-01"),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -11,6 +12,7 @@ module.exports = {
       {
         userId: 1,
         mealId: 1, // Same meal ID
+        mealType: "lunch", // Added mealType
         dateConsumed: new Date("2024-03-02"),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -18,6 +20,7 @@ module.exports = {
       {
         userId: 1,
         mealId: 1, // Same meal ID
+        mealType: "supper", // Added mealType
         dateConsumed: new Date("2024-03-03"),
         createdAt: new Date(),
         updatedAt: new Date(),

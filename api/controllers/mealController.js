@@ -2,6 +2,7 @@ import Meal from "../../models/meal.js";
 import MealDetail from "../../models/mealDetail.js";
 import MealHistory from "../../models/mealHistory.js";
 import AppError from "../../utils/AppError.js";
+import { Op, col, fn, Sequelize } from "sequelize";
 
 /**
  * Get meal by ID
@@ -88,6 +89,9 @@ export const consumeMeal = async (req, res, next) => {
       return next(new AppError("Invalid meal type", 400));
     }
 
+    // Get current date in UTC format (YYYY-MM-DD)
+    const today = new Date().toISOString().split("T")[0];
+
     // Check if meal type is available for the given mealId
     const mealDetail = await MealDetail.findOne({
       where: { mealId },
@@ -108,11 +112,28 @@ export const consumeMeal = async (req, res, next) => {
       );
     }
 
+    // Prevent duplicate meal consumption by checking both mealType and dateConsumed
+    const existingMeal = await MealHistory.findOne({
+      where: {
+        userId,
+        mealId,
+        mealType,
+        [Op.and]: [
+          Sequelize.where(fn("DATE", col("dateConsumed")), today), // Compare only the date part
+        ],
+      },
+    });
+
+    if (existingMeal) {
+      return next(new AppError("Meal already consumed today!", 400));
+    }
+
     // Record the meal consumption in MealHistory
     await MealHistory.create({
       userId,
       mealId,
-      dateConsumed: new Date(),
+      mealType: mealType,
+      dateConsumed: new Date(), // Store full timestamp
     });
 
     res.json({
@@ -120,6 +141,7 @@ export const consumeMeal = async (req, res, next) => {
       message: `Meal (${mealType}) successfully consumed by ${name} (${matricNumber})`,
     });
   } catch (error) {
+    console.error("Meal Consumption Error:", error);
     next(error);
   }
 };
