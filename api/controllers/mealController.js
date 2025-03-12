@@ -1,6 +1,7 @@
 import Meal from "../../models/meal.js";
 import MealDetail from "../../models/mealDetail.js";
 import MealHistory from "../../models/mealHistory.js";
+import UserMeal from "../../models/userMeal.js";
 import AppError from "../../utils/AppError.js";
 import { Op, col, fn, Sequelize } from "sequelize";
 
@@ -79,7 +80,8 @@ export const getMealHistory = async (req, res, next) => {
 };
 
 /**
- * Handles meal consumption by verifying meal type availability and updating meal history.
+ * Handles meal consumption by verifying meal type availability, updating meal history,
+ * and adjusting meals used and meals left in UserMeals table.
  */
 export const consumeMeal = async (req, res, next) => {
   try {
@@ -129,17 +131,37 @@ export const consumeMeal = async (req, res, next) => {
       return next(new AppError("Meal already consumed today!", 400));
     }
 
+    // Fetch the UserMeal record to update mealsUsed and mealsLeft
+    const userMeal = await UserMeal.findOne({
+      where: { userId, mealId },
+    });
+
+    if (!userMeal) {
+      return next(new AppError("User meal record not found", 404));
+    }
+
+    if (userMeal.mealsLeft <= 0) {
+      return next(new AppError("No meals left for this user", 400));
+    }
+
+    // Update mealsUsed and mealsLeft
+    await userMeal.update({
+      mealsUsed: userMeal.mealsUsed + 1,
+      mealsLeft: userMeal.mealsLeft - 1,
+    });
+
     // Record the meal consumption in MealHistory
     await MealHistory.create({
       userId,
       mealId,
-      mealType: mealType,
+      mealType,
       dateConsumed: new Date(), // Store full timestamp
     });
 
     res.json({
       success: true,
       message: `Meal (${mealType}) successfully consumed by ${name} (${matricNumber})`,
+      mealsLeft: userMeal.mealsLeft, // Return updated count
     });
   } catch (error) {
     console.error("Meal Consumption Error:", error);
