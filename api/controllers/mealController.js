@@ -60,6 +60,7 @@ export const getMealHistory = async (req, res, next) => {
       attributes: [
         "userId",
         "mealId",
+        "mealType",
         "dateConsumed",
         "createdAt",
         "updatedAt",
