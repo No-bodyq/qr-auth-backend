@@ -12,7 +12,7 @@ export const getUserMealStatus = async (req, res, next) => {
     // Find the UserMeal entry for the user
     const userMeal = await UserMeal.findOne({
       where: { userId },
-      attributes: ["mealsLeft", "daysLeft"],
+      attributes: ["mealsLeft", "mealsUsed"],
     });
 
     if (!userMeal) {
