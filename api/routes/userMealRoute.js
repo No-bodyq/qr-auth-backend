@@ -15,4 +15,8 @@ userMealRouter
     userMealController.getUserMealStatus
   );
 
+userMealRouter
+  .route("/get-user-meals")
+  .get(authMiddleware, requireRoles("admin"), userMealController.getUserMeals);
+
 export default userMealRouter;

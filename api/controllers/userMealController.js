@@ -1,5 +1,7 @@
 import UserMeal from "../../models/userMeal.js";
 import AppError from "../../utils/AppError.js";
+import User from "../../models/user.js";
+import Meal from "../../models/meal.js";
 
 /**
  * Get meals left and days left for a user
@@ -22,6 +24,25 @@ export const getUserMealStatus = async (req, res, next) => {
     res.json(userMeal);
   } catch (error) {
     console.error("The error is: ", error);
+    next(error);
+  }
+};
+
+export const getUserMeals = async (req, res, next) => {
+  try {
+    const users = await User.findAll({
+      attributes: ["id", "username", "email", "roleId", "matricNumber"],
+      include: [
+        {
+          model: Meal,
+          attributes: ["name"],
+          as: "meal",
+        },
+      ],
+    });
+
+    res.json(users);
+  } catch (error) {
     next(error);
   }
 };
