@@ -46,3 +46,23 @@ export const getUserMeals = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getUserMealById = async (req, res, next) => {
+  try {
+    const users = await User.findOne({
+      where: { id: req.body.id },
+      attributes: ["id", "username", "email", "roleId", "matricNumber"],
+      include: [
+        {
+          model: Meal,
+          attributes: ["name"],
+          as: "meal",
+        },
+      ],
+    });
+
+    res.json(users);
+  } catch (error) {
+    next(error);
+  }
+};

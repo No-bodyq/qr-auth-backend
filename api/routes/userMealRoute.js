@@ -19,4 +19,12 @@ userMealRouter
   .route("/get-user-meals")
   .get(authMiddleware, requireRoles("admin"), userMealController.getUserMeals);
 
+userMealRouter
+  .route("/get-user-meal-by-id")
+  .get(
+    authMiddleware,
+    requireRoles("admin"),
+    userMealController.getUserMealById
+  );
+
 export default userMealRouter;
