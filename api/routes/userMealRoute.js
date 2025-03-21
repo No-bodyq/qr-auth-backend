@@ -21,7 +21,7 @@ userMealRouter
 
 userMealRouter
   .route("/get-user-meal-by-id")
-  .get(
+  .post(
     authMiddleware,
     requireRoles("admin"),
     userMealController.getUserMealById
