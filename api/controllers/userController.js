@@ -1,6 +1,7 @@
 import User from "../../models/user.js";
 import bcrypt from "bcrypt";
 import AppError from "../../utils/AppError.js";
+import Meal from "../../models/meal.js";
 
 /**
  * Get all users
@@ -8,13 +9,13 @@ import AppError from "../../utils/AppError.js";
 export const getUsers = async (req, res, next) => {
   try {
     const users = await User.findAll({
-      attributes: [
-        "id",
-        "username",
-        "email",
-        "roleId",
-        "matricNumber",
-        "mealId",
+      attributes: ["id", "username", "email", "roleId", "matricNumber"],
+      include: [
+        {
+          model: Meal,
+          attributes: ["name"],
+          as: "meal",
+        },
       ],
     });
     res.json(users);
