@@ -20,7 +20,7 @@ userMealRouter
   .get(authMiddleware, requireRoles("admin"), userMealController.getUserMeals);
 
 userMealRouter
-  .route("/get-user-meal-by-id")
+  .route("/get-user-meal-by-mat-no")
   .post(
     authMiddleware,
     requireRoles("admin"),

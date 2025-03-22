@@ -50,7 +50,7 @@ export const getUserMeals = async (req, res, next) => {
 export const getUserMealById = async (req, res, next) => {
   try {
     const users = await User.findOne({
-      where: { id: req.body.id },
+      where: { matricNumber: req.body.matricNumber },
       attributes: ["id", "username", "email", "roleId", "matricNumber"],
       include: [
         {
