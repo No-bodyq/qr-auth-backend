@@ -36,12 +36,6 @@ const dbConfig = {
     host: process.env.DB_HOST,
     dialect: "postgres",
     logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false, // Sometimes required for hosted DBs like Render
-      },
-    },
     pool: {
       max: 5,
       min: 0,
@@ -49,17 +43,8 @@ const dbConfig = {
       idle: 10000,
     },
   },
-  
 };
 
-const { database, username, password, host, dialect, logging, dialectOptions, pool } = dbConfig[env];
-
-const sequelize = new Sequelize(database, username, password, {
-  host,
-  dialect,
-  logging,
-  dialectOptions,
-  pool,
-});
+const sequelize = new Sequelize(dbConfig[env]);
 
 export default sequelize;
